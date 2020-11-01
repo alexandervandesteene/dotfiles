@@ -58,6 +58,7 @@ cask 'microsoft-excel'
 cask 'microsoft-word'
 cask 'microsoft-outlook'
 cask 'microsoft-powerpoint'
+cask 'iterm2'
 
 # Quicklook
 cask 'qlcolorcode'
