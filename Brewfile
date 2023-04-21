@@ -36,7 +36,7 @@ brew 'gd'
 # Apps
 cask 'aerial'
 cask 'appcleaner'
-cask 'cyberduck
+cask 'cyberduck'
 cask 'docker'
 cask 'firefox'
 cask 'google-backup-and-sync'
