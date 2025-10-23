@@ -1,46 +1,76 @@
 #!/bin/sh
 
-echo "Setting up your Mac..."
+echo "🚀 Setting up your Mac..."
 
 # Check for Homebrew and install if we don't have it
 if test ! $(which brew); then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  echo "📦 Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  
+  # Add Homebrew to PATH for Apple Silicon Macs
+  if [[ $(uname -m) == 'arm64' ]]; then
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+else
+  echo "✅ Homebrew already installed"
 fi
 
 # Update Homebrew recipes
+echo "🔄 Updating Homebrew..."
 brew update
 
 # Install all our dependencies with bundle (See Brewfile)
+echo "📦 Installing packages from Brewfile..."
 brew tap homebrew/bundle
-brew bundle
-
-# Set default MySQL root password and auth type.
-mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY 'password'; FLUSH PRIVILEGES;"
-
-# Install PHP extensions with PECL
-pecl install memcached imagick
-
-# Install global Composer packages
-/usr/local/bin/composer global require laravel/installer laravel/valet beyondcode/expose
-
-# Install Laravel Valet
-$HOME/.composer/vendor/bin/valet install
+brew bundle --file=$HOME/.dotfiles/Brewfile
 
 # Create a Sites directory
-# This is a default directory for macOS user accounts but doesn't comes pre-installed
-mkdir $HOME/Sites
+echo "📁 Creating Sites directory..."
+mkdir -p $HOME/Sites
 
-# Create sites subdirectories
-mkdir $HOME/Sites/blade-ui-kit
-mkdir $HOME/Sites/laravel
-
-# Removes .zshrc from $HOME (if it exists) and symlinks the .zshrc file from the .dotfiles
+# Symlink .zshrc
+echo "🔗 Symlinking .zshrc..."
 rm -rf $HOME/.zshrc
-ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
+ln -sf $HOME/.dotfiles/.zshrc $HOME/.zshrc
 
-# Symlink the Mackup config file to the home directory
-ln -s $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
+# Create env.zsh if it doesn't exist
+if [ ! -f $HOME/.dotfiles/env.zsh ]; then
+  echo "📝 Creating env.zsh from template..."
+  cp $HOME/.dotfiles/env.zsh.example $HOME/.dotfiles/env.zsh 2>/dev/null || touch $HOME/.dotfiles/env.zsh
+fi
 
-# Set macOS preferences
-# We will run this last because this will reload the shell
-source .macos
+# Symlink the Mackup config file to the home directory (if it exists)
+if [ -f $HOME/.dotfiles/.mackup.cfg ]; then
+  echo "🔗 Symlinking Mackup config..."
+  ln -sf $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
+fi
+
+# Initialize NVM
+if [ -d "$(brew --prefix)/opt/nvm" ]; then
+  echo "🟢 Initializing NVM..."
+  mkdir -p $HOME/.nvm
+fi
+
+# Initialize pyenv
+if command -v pyenv &> /dev/null; then
+  echo "🐍 Initializing pyenv..."
+  eval "$(pyenv init -)"
+fi
+
+# Set macOS preferences (if .macos file exists)
+if [ -f $HOME/.dotfiles/.macos ]; then
+  echo "⚙️  Setting macOS preferences..."
+  source $HOME/.dotfiles/.macos
+fi
+
+echo ""
+echo "✅ Setup complete!"
+echo ""
+echo "📝 Next steps:"
+echo "  1. Restart your terminal"
+echo "  2. Configure Powerlevel10k: run 'p10k configure'"
+echo "  3. If using Herd, open it and complete setup"
+echo "  4. If using Mackup, run 'mackup restore' to restore app settings"
+echo "  5. Generate SSH keys: ssh-keygen -t ed25519 -C 'your_email@example.com'"
+echo ""

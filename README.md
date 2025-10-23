@@ -1,9 +1,8 @@
-# Dries's Dotfiles
+# Alexander's Dotfiles
 
-This repository serves as my way to help me setup and maintain my Mac. It takes the effort out of installing everything manually. Everything needed to install my preferred setup of macOS is detailed in this readme. Feel free to explore, learn and copy parts for your own dotfiles. Enjoy! :smile:
+This repository serves as my way to help me setup and maintain my Mac. It takes the effort out of installing everything manually. Everything needed to install my preferred setup of macOS is detailed in this readme.
 
-📖 Read the blog post: https://driesvints.com/blog/getting-started-with-dotfiles  
-📺 Watch the screencast on Laracasts: https://laracasts.com/series/guest-spotlight/episodes/1
+Based on [Dries Vints' dotfiles](https://driesvints.com/blog/getting-started-with-dotfiles) with personal customizations.
 
 ## A Fresh macOS Setup
 
@@ -27,19 +26,72 @@ After going to our checklist above and making sure you backed everything up, we'
 
 If you did all of the above you may now follow these install instructions to setup a new Mac.
 
-1. Update macOS to the latest version with the App Store
-2. Install Xcode from the App Store, open it and accept the license agreement
-3. Install macOS Command Line Tools by running `xcode-select --install`
-4. [Generate a new public and private SSH key](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) and add them to Github
-5. Clone this repo to `~/.dotfiles`
-6. Install [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh#getting-started)
-6. Run `fresh.sh` to start the installation
-7. After mackup is synced with your cloud storage, restore preferences by running `mackup restore`
-8. Restart your computer to finalize the process
+1. **Update macOS** to the latest version through System Settings
+2. **Install Xcode Command Line Tools**
+   ```bash
+   xcode-select --install
+   ```
+3. **Generate SSH keys** and add to GitHub
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/id_ed25519
+   pbcopy < ~/.ssh/id_ed25519.pub
+   # Then paste into GitHub Settings > SSH Keys
+   ```
+4. **Clone this repo** to `~/.dotfiles`
+   ```bash
+   git clone git@github.com:yourusername/dotfiles.git ~/.dotfiles
+   cd ~/.dotfiles
+   ```
+5. **Install Oh My Zsh**
+   ```bash
+   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+   ```
+6. **Install Powerlevel10k theme**
+   ```bash
+   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+   ```
+7. **Run the setup script**
+   ```bash
+   cd ~/.dotfiles
+   chmod +x fresh.sh
+   ./fresh.sh
+   ```
+8. **Configure your environment**
+   - Copy `env.zsh.example` to `env.zsh` and customize for your machine
+   - Run `p10k configure` to set up your prompt
+9. **Restore app settings** (optional)
+   ```bash
+   mackup restore
+   ```
+10. **Restart your terminal** to apply all changes
 
 Your Mac is now ready to use!
 
-> Note: you can use a different location than `~/.dotfiles` if you want. Just make sure you also update the reference in the [`.zshrc`](./.zshrc) file.
+> **Note:** The dotfiles must be located at `~/.dotfiles` as this path is referenced in `.zshrc`.
+
+## File Structure
+
+- **`.zshrc`** - Main zsh configuration, loads Oh My Zsh and custom files
+- **`aliases.zsh`** - Custom command aliases
+- **`path.zsh`** - PATH configuration for Composer, Node, etc.
+- **`env.zsh`** - Machine-specific environment variables (gitignored)
+- **`env.zsh.example`** - Template for env.zsh
+- **`Brewfile`** - Homebrew packages, apps, and fonts to install
+- **`fresh.sh`** - Setup script for new Mac installations
+- **`themes/powerlevel10k/`** - Powerlevel10k theme (git submodule)
+
+### Machine-Specific Configuration
+
+The `env.zsh` file is gitignored and contains machine-specific paths and configurations like:
+- NVM (Node Version Manager)
+- Pyenv (Python Version Manager)
+- Laravel Herd
+- Google Cloud SDK
+- Any other tools that may differ between machines
+
+Copy `env.zsh.example` to `env.zsh` and uncomment/customize the sections you need.
 
 ## Your Own Dotfiles
 

@@ -16,43 +16,39 @@ brew 'mas' # Mac App Store manager
 brew 'pkg-config' # https://github.com/driesvints/dotfiles/issues/20
 brew 'trash' # Manage the Trash bin
 brew 'tree' # List directories in a tree structure
-brew 'gd'
 brew 'wget'
+brew 'nvm' # Node Version Manager
+brew 'pyenv' # Python Version Manager
+brew 'zsh-autosuggestions' # Fish-like autosuggestions
+brew 'zsh-syntax-highlighting' # Syntax highlighting for zsh
 
 # Development
-brew 'php'
-brew 'php@8.1'
-brew 'php@7.4'
+# Note: If using Herd, you don't need these PHP/MySQL/Nginx packages
+# Uncomment if you prefer Homebrew-managed versions instead of Herd
+# brew 'php'
+# brew 'mysql'
+# brew 'nginx'
 brew 'composer'
 brew 'imagemagick'
-brew 'mysql'
-brew 'nginx'
 brew 'node'
 brew 'redis'
 brew 'yarn'
-brew 'gd'
 
 # Apps
-cask '1password'
 cask 'appcleaner'
 cask 'cyberduck'
 cask 'docker'
-cask 'firefox'
 cask 'google-chrome'
+cask 'herd' # Laravel Herd - PHP development environment
 cask 'imageoptim'
-cask 'insomnia'
-cask 'phpstorm'
-cask 'slack'
+cask 'iterm2'
+cask 'raycast'
 cask 'spotify'
 cask 'tableplus'
 cask 'the-unarchiver'
 cask 'tinkerwell'
-cask 'cyberduck'
 cask 'visual-studio-code'
-cask 'vlc'
 cask 'whatsapp'
-cask 'iterm2'
-cask 'phpmon'
 
 # Quicklook
 cask 'qlcolorcode'
@@ -70,11 +66,3 @@ cask 'font-source-code-pro-for-powerline'
 cask 'font-source-code-pro'
 cask 'font-source-sans-pro'
 cask 'font-source-serif-pro'
-
-# Mac App Store
-mas 'Byword', id: 420212497
-mas 'Giphy Capture', id: 668208984
-mas 'Spark', id: 1176895641
-mas 'Speedtest', id: 1153157709
-mas 'Things', id: 904280696
-mas 'Tweetbot', id: 1384080005
