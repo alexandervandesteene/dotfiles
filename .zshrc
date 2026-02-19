@@ -14,6 +14,11 @@ export DOTFILES=$HOME/.dotfiles
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
+# Cache brew prefix once for plugin lookups.
+if command -v brew >/dev/null 2>&1; then
+  export HOMEBREW_PREFIX="$(brew --prefix)"
+fi
+
 # Enable completions
 autoload -Uz compinit && compinit
 
@@ -89,16 +94,6 @@ plugins=(
   composer
 )
 
-# Load zsh-autosuggestions if installed via Homebrew
-if [ -f $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-  source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-fi
-
-# Load zsh-syntax-highlighting if installed via Homebrew (must be last)
-if [ -f $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -112,14 +107,27 @@ export LANG=en_US.UTF-8
 # Make vim the default editor
 export EDITOR="vim"
 
-# Larger bash history (allow 32³ entries; default is 500)
+# Larger zsh history
 export HISTSIZE=32768
-export HISTFILESIZE=$HISTSIZE
-export HISTCONTROL=ignoredups
-# Make some commands not show up in history
-export HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help"
-# And include the parameter for ZSH
-export HISTORY_IGNORE="(ls|cd|cd -|pwd|exit|date|* --help)"
+export SAVEHIST=$HISTSIZE
+export HISTFILE="$HOME/.zsh_history"
+setopt APPEND_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+setopt EXTENDED_HISTORY
+
+# Keep low-signal commands out of history.
+zshaddhistory() {
+  emulate -L zsh
+  local line="${1%%$'\n'}"
+  case "$line" in
+    ls|cd|cd\ -|pwd|exit|date|*' --help')
+      return 1
+      ;;
+  esac
+  return 0
+}
 
 # Highlight section titles in manual pages
 export LESS_TERMCAP_md="$ORANGE"
@@ -127,10 +135,18 @@ export LESS_TERMCAP_md="$ORANGE"
 # Don’t clear the screen after quitting a manual page
 export MANPAGER="less -X"
 
-# Always enable colored `grep` output
-export GREP_OPTIONS="--color=auto"
+# Load machine-specific environment configuration
+[ -f "$DOTFILES/env.zsh" ] && source "$DOTFILES/env.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-# Load machine-specific environment configuration
-[ -f "$DOTFILES/env.zsh" ] && source "$DOTFILES/env.zsh"
+
+# Load zsh-autosuggestions if installed via Homebrew.
+if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -f "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
+# Load zsh-syntax-highlighting if installed via Homebrew (must be last).
+if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -f "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+  source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi

@@ -41,26 +41,31 @@ If you did all of the above you may now follow these install instructions to set
    ```
 4. **Clone this repo** to `~/.dotfiles`
    ```bash
-   git clone git@github.com:yourusername/dotfiles.git ~/.dotfiles
+   git clone --recurse-submodules git@github.com:yourusername/dotfiles.git ~/.dotfiles
    cd ~/.dotfiles
    ```
 5. **Install Oh My Zsh**
    ```bash
    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
    ```
-6. **Install Powerlevel10k theme**
-   ```bash
-   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-   ```
-7. **Run the setup script**
+6. **Run the setup script**
    ```bash
    cd ~/.dotfiles
    chmod +x fresh.sh
    ./fresh.sh
    ```
-8. **Configure your environment**
+7. **Configure your environment**
    - Copy `env.zsh.example` to `env.zsh` and customize for your machine
    - Run `p10k configure` to set up your prompt
+8. **Apply macOS defaults** (optional)
+   ```bash
+   APPLY_MACOS_DEFAULTS=1 ./fresh.sh
+   ```
+   Optional machine-specific overrides for `.macos`:
+   - `DOTFILES_COMPUTER_NAME`
+   - `DOTFILES_TIMEZONE`
+   - `DOTFILES_APPLY_LOCALE_SETTINGS=1`
+   - `DOTFILES_DISABLE_QUARANTINE_PROMPT=1`
 9. **Restore app settings** (optional)
    ```bash
    mackup restore
@@ -80,6 +85,7 @@ Your Mac is now ready to use!
 - **`env.zsh.example`** - Template for env.zsh
 - **`Brewfile`** - Homebrew packages, apps, and fonts to install
 - **`fresh.sh`** - Setup script for new Mac installations
+- **`.gitmodules`** - Git submodule definitions
 - **`themes/powerlevel10k/`** - Powerlevel10k theme (git submodule)
 
 ### Machine-Specific Configuration

@@ -1,19 +1,35 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
+BREWFILE="$DOTFILES/Brewfile"
 
 echo "🚀 Setting up your Mac..."
 
+if [[ ! -d "$DOTFILES" ]]; then
+  echo "❌ Dotfiles directory not found: $DOTFILES"
+  exit 1
+fi
+
 # Check for Homebrew and install if we don't have it
-if test ! $(which brew); then
+if ! command -v brew >/dev/null 2>&1; then
   echo "📦 Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  
+
   # Add Homebrew to PATH for Apple Silicon Macs
-  if [[ $(uname -m) == 'arm64' ]]; then
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
+  if [[ "$(uname -m)" == "arm64" && -x /opt/homebrew/bin/brew ]]; then
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
 else
   echo "✅ Homebrew already installed"
+fi
+
+# Ensure brew environment is available in this shell
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
 fi
 
 # Update Homebrew recipes
@@ -23,45 +39,59 @@ brew update
 # Install all our dependencies with bundle (See Brewfile)
 echo "📦 Installing packages from Brewfile..."
 brew tap homebrew/bundle
-brew bundle --file=$HOME/.dotfiles/Brewfile
+if brew bundle check --file="$BREWFILE" >/dev/null 2>&1; then
+  echo "✅ Brew dependencies already satisfied"
+else
+  brew bundle --file="$BREWFILE"
+fi
+
+# Initialize git submodules (e.g. powerlevel10k theme)
+if [[ -d "$DOTFILES/.git" ]]; then
+  echo "🧩 Initializing git submodules..."
+  git -C "$DOTFILES" submodule sync --recursive
+  git -C "$DOTFILES" submodule update --init --recursive
+fi
 
 # Create a Sites directory
 echo "📁 Creating Sites directory..."
-mkdir -p $HOME/Sites
+mkdir -p "$HOME/Sites"
 
 # Symlink .zshrc
 echo "🔗 Symlinking .zshrc..."
-rm -rf $HOME/.zshrc
-ln -sf $HOME/.dotfiles/.zshrc $HOME/.zshrc
+ln -sfn "$DOTFILES/.zshrc" "$HOME/.zshrc"
 
 # Create env.zsh if it doesn't exist
-if [ ! -f $HOME/.dotfiles/env.zsh ]; then
+if [[ ! -f "$DOTFILES/env.zsh" ]]; then
   echo "📝 Creating env.zsh from template..."
-  cp $HOME/.dotfiles/env.zsh.example $HOME/.dotfiles/env.zsh 2>/dev/null || touch $HOME/.dotfiles/env.zsh
+  cp "$DOTFILES/env.zsh.example" "$DOTFILES/env.zsh" 2>/dev/null || touch "$DOTFILES/env.zsh"
 fi
 
 # Symlink the Mackup config file to the home directory (if it exists)
-if [ -f $HOME/.dotfiles/.mackup.cfg ]; then
+if [[ -f "$DOTFILES/.mackup.cfg" ]]; then
   echo "🔗 Symlinking Mackup config..."
-  ln -sf $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
+  ln -sfn "$DOTFILES/.mackup.cfg" "$HOME/.mackup.cfg"
 fi
 
-# Initialize NVM
-if [ -d "$(brew --prefix)/opt/nvm" ]; then
-  echo "🟢 Initializing NVM..."
-  mkdir -p $HOME/.nvm
+# Initialize NVM directory if installed via Homebrew
+if brew list nvm >/dev/null 2>&1; then
+  echo "🟢 Initializing NVM directory..."
+  mkdir -p "$HOME/.nvm"
 fi
 
-# Initialize pyenv
-if command -v pyenv &> /dev/null; then
-  echo "🐍 Initializing pyenv..."
-  eval "$(pyenv init -)"
+# Warn if Oh My Zsh is missing
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  echo "⚠️  Oh My Zsh is not installed. Install it with:"
+  echo "   sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
 fi
 
-# Set macOS preferences (if .macos file exists)
-if [ -f $HOME/.dotfiles/.macos ]; then
-  echo "⚙️  Setting macOS preferences..."
-  source $HOME/.dotfiles/.macos
+# Optionally set macOS preferences
+if [[ -f "$DOTFILES/.macos" ]]; then
+  if [[ "${APPLY_MACOS_DEFAULTS:-0}" == "1" ]]; then
+    echo "⚙️  Applying macOS preferences..."
+    bash "$DOTFILES/.macos"
+  else
+    echo "⏭️  Skipping macOS defaults. Run with APPLY_MACOS_DEFAULTS=1 to apply."
+  fi
 fi
 
 echo ""
@@ -73,4 +103,5 @@ echo "  2. Configure Powerlevel10k: run 'p10k configure'"
 echo "  3. If using Herd, open it and complete setup"
 echo "  4. If using Mackup, run 'mackup restore' to restore app settings"
 echo "  5. Generate SSH keys: ssh-keygen -t ed25519 -C 'your_email@example.com'"
+echo "  6. Apply macOS defaults (optional): APPLY_MACOS_DEFAULTS=1 ./fresh.sh"
 echo ""
