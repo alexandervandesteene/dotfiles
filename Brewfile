@@ -38,6 +38,7 @@ brew 'yarn'
 cask 'appcleaner'
 cask 'cyberduck'
 cask 'docker'
+cask 'ghostty'
 cask 'google-chrome'
 cask 'herd' # Laravel Herd - PHP development environment
 cask 'imageoptim'

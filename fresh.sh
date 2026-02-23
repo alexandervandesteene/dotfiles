@@ -60,6 +60,19 @@ mkdir -p "$HOME/Sites"
 echo "🔗 Symlinking .zshrc..."
 ln -sfn "$DOTFILES/.zshrc" "$HOME/.zshrc"
 
+# Symlink tmux config
+if [[ -f "$DOTFILES/.tmux.conf" ]]; then
+  echo "🔗 Symlinking .tmux.conf..."
+  ln -sfn "$DOTFILES/.tmux.conf" "$HOME/.tmux.conf"
+fi
+
+# Symlink Ghostty config
+if [[ -f "$DOTFILES/ghostty/config" ]]; then
+  echo "🔗 Symlinking Ghostty config..."
+  mkdir -p "$HOME/.config/ghostty"
+  ln -sfn "$DOTFILES/ghostty/config" "$HOME/.config/ghostty/config"
+fi
+
 # Create env.zsh if it doesn't exist
 if [[ ! -f "$DOTFILES/env.zsh" ]]; then
   echo "📝 Creating env.zsh from template..."

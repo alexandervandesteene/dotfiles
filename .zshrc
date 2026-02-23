@@ -138,6 +138,19 @@ export MANPAGER="less -X"
 # Load machine-specific environment configuration
 [ -f "$DOTFILES/env.zsh" ] && source "$DOTFILES/env.zsh"
 
+# Auto-start tmux for local interactive shells.
+# Disable temporarily with: TMUX_AUTOSTART=0 zsh
+export TMUX_SESSION_NAME="${TMUX_SESSION_NAME:-main}"
+if command -v tmux >/dev/null 2>&1 \
+  && [[ "${TMUX_AUTOSTART:-1}" = "1" ]] \
+  && [[ -z "${TMUX:-}" ]] \
+  && [[ "${SHLVL:-1}" -eq 1 ]] \
+  && [[ -z "${SSH_TTY:-}" ]] \
+  && [[ "${TERM:-}" != "dumb" ]] \
+  && [[ "${TERM_PROGRAM:-}" != "vscode" ]]; then
+  tmux new-session -A -s "$TMUX_SESSION_NAME"
+fi
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
@@ -150,3 +163,7 @@ fi
 if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -f "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
   source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
+
+
+# Herd injected PHP 8.4 configuration.
+export HERD_PHP_84_INI_SCAN_DIR="/Users/alexander/Library/Application Support/Herd/config/php/84/"

@@ -79,12 +79,14 @@ Your Mac is now ready to use!
 ## File Structure
 
 - **`.zshrc`** - Main zsh configuration, loads Oh My Zsh and custom files
+- **`.tmux.conf`** - Tmux configuration (mouse support, key bindings, etc.)
 - **`aliases.zsh`** - Custom command aliases
 - **`path.zsh`** - PATH configuration for Composer, Node, etc.
 - **`env.zsh`** - Machine-specific environment variables (gitignored)
 - **`env.zsh.example`** - Template for env.zsh
 - **`Brewfile`** - Homebrew packages, apps, and fonts to install
 - **`fresh.sh`** - Setup script for new Mac installations
+- **`ghostty/config`** - Ghostty terminal appearance and behavior
 - **`.gitmodules`** - Git submodule definitions
 - **`themes/powerlevel10k/`** - Powerlevel10k theme (git submodule)
 
